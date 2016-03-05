@@ -13,18 +13,19 @@ using System.Windows.Forms;
 
 namespace ParserHTML {
     public partial class MainForm : Form {
-
         public MainForm() {
             InitializeComponent();
 
             notifyIcon1.Visible = false;
             this.notifyIcon1.MouseDoubleClick += new MouseEventHandler(notifyIcon1_MouseDoubleClick);
-            this.Resize += new System.EventHandler(this.Form1_Resize);
+            this.Resize += new System.EventHandler(Form1_Resize);    
+            this.dataGridResult.SortCompare += customSortCompare;
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e) {
             Show();
             notifyIcon1.Visible = false;
+            TopMost = true;
             WindowState = FormWindowState.Normal;
         }
 
@@ -54,13 +55,18 @@ namespace ParserHTML {
         }
 
         private HtmlDocument GetHtmlDocument(string html) {
-            WebBrowser browser = new WebBrowser();
-            browser.ScriptErrorsSuppressed = true;
-            browser.DocumentText = html;
-            browser.Document.OpenNew(true);
-            browser.Document.Write(html);
-            browser.Refresh();
-            return browser.Document;
+            HtmlDocument result = null;
+
+            using (WebBrowser browser = new WebBrowser()) {
+                browser.ScriptErrorsSuppressed = true;
+                browser.DocumentText = html;
+                browser.Document.OpenNew(true);
+                browser.Document.Write(html);
+                browser.Refresh();
+                result = browser.Document;
+            }
+
+            return result;
         }
 
         private List<HtmlElement> GetListElementsByClass(HtmlElementCollection list, string className) {
@@ -86,10 +92,8 @@ namespace ParserHTML {
             }
         }
 
-        private void GetData() {
+        private void InnerGetData() {
             List<List<string>> result = new List<List<string>>();
-
-            btnStart.Enabled = false;
 
             int key = 0;
             foreach (DataGridViewRow row_data_view in dataGridResult.Rows) {
@@ -105,14 +109,17 @@ namespace ParserHTML {
             string data = GetHTML(url);
 
             var doc = GetHtmlDocument(data);
+            if (null == doc) return;
 
             var list = GetListElementsByClass(doc.All, "description");
 
             foreach (var item in list) {
                 var href = item.GetElementsByTagName("a");
                 var inner_doc = GetHtmlDocument(item.InnerHtml);
+                if (null == inner_doc) return;
 
                 var list_a = GetListElementsByClass(inner_doc.All, "item-description-title-link");
+
                 if (list_a.Count > 0 && list_a[0].InnerText.ToLower().Contains(txtContains.Text.ToLower())) {
                     var price_list = GetListElementsByClass(inner_doc.All, "about");
                     if (price_list.Count > 0 && !string.IsNullOrEmpty(price_list[0].InnerText)) {
@@ -160,10 +167,15 @@ namespace ParserHTML {
                 builder.Append(row[1] + " " + row[0]);
                 builder.Append(Environment.NewLine);
             }
-
-            if(result.Count > 0)
+            if (result.Count > 0) {
+                notifyIcon1.Visible = true;
                 notifyIcon1.ShowBalloonTip(5000, "Нашел " + txtContains.Text, builder.ToString(), ToolTipIcon.Info);
+            }
+        }
 
+        private void GetData() {
+            btnStart.Enabled = false;
+            InnerGetData();
             btnStart.Enabled = true;
         }
 
@@ -191,11 +203,18 @@ namespace ParserHTML {
             if (WindowState == FormWindowState.Minimized) {
                 Hide();
                 notifyIcon1.Visible = true;
+                notifyIcon1.Text = "Ищем: " + txtContains.Text;
             }
         }
 
         private void timerMain_Tick(object sender, EventArgs e) {
             GetData();
+        }
+
+        private void customSortCompare(object sender, DataGridViewSortCompareEventArgs e) {
+            int a = int.Parse(e.CellValue1.ToString()), b = int.Parse(e.CellValue2.ToString());
+            e.SortResult = a.CompareTo(b);
+            e.Handled = true;
         }
     }
 }

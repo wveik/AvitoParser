@@ -167,6 +167,7 @@
             this.Controls.Add(this.txtContains);
             this.Controls.Add(this.btnStart);
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Парсер";
             this.Resize += new System.EventHandler(this.Form1_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridResult)).EndInit();
