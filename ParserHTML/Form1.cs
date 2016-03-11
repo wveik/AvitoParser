@@ -7,6 +7,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -93,6 +94,10 @@ namespace ParserHTML {
         }
 
         private void InnerGetData() {
+            if (String.IsNullOrEmpty(txtURL.Text)) return;
+            if (String.IsNullOrEmpty(txtContains.Text)) return;
+            if (String.IsNullOrEmpty(txtPrice.Text)) return;
+
             List<List<string>> result = new List<List<string>>();
 
             int key = 0;
@@ -171,6 +176,57 @@ namespace ParserHTML {
                 notifyIcon1.Visible = true;
                 notifyIcon1.ShowBalloonTip(5000, "Нашел " + txtContains.Text, builder.ToString(), ToolTipIcon.Info);
             }
+
+            SendToMail(result);
+        }
+
+        private void SendToMail(List<List<string>> result) {
+            if (!checkBoxUseMAIL.Checked) return;
+            if (result.Count == 0) return;
+            if (String.IsNullOrEmpty(txtFrom.Text)) return;
+            if (String.IsNullOrEmpty(txtTo.Text)) return;
+            if (String.IsNullOrEmpty(txtPassword.Text)) return;
+            if (String.IsNullOrEmpty(txtMailPrice.Text)) return;
+
+            var min = result.Select(x => double.Parse(x[1].Replace(" руб. ", ""))).ToList<double>().Min();
+            double checkDigit = double.Parse(txtMailPrice.Text);
+
+            if (checkDigit < min) return;
+
+            StringBuilder builder = new StringBuilder();
+            foreach (var row in result) {
+                min = double.Parse(row[1].Replace(" руб. ", ""));
+                if (checkDigit < min) continue;
+
+                builder.Append(row[1] + " <br /> " + row[0] + " <br /> " + row[2]);
+                builder.Append(Environment.NewLine);
+            }
+
+            var fromAddress = new MailAddress(txtFrom.Text);
+            var toAddress = new MailAddress(txtTo.Text);
+            string fromPassword = txtPassword.Text;
+            string subject = "Нашел: " + txtContains.Text;
+            string body = builder.ToString();
+
+            var smtp = new SmtpClient {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            };
+            using (
+                var message = new MailMessage(fromAddress, toAddress) {
+                Subject = subject,
+                Body = body
+            }) {
+                try {
+                    smtp.Send(message);
+                } catch (Exception ex) {
+                    //Nothing
+                }
+            }
         }
 
         private void GetData() {
@@ -184,7 +240,7 @@ namespace ParserHTML {
                 e.Handled = true;
             if (e.KeyChar == 44) {
                 e.Handled = false;
-                foreach (char item in txtPrice.Text) {
+                foreach (char item in ((TextBox)sender).Text) {
                     if (44 == item) {
                         e.Handled = true;
                     }
@@ -215,6 +271,10 @@ namespace ParserHTML {
             int a = int.Parse(e.CellValue1.ToString()), b = int.Parse(e.CellValue2.ToString());
             e.SortResult = a.CompareTo(b);
             e.Handled = true;
+        }
+
+        private void checkBoxUseMAIL_CheckedChanged(object sender, EventArgs e) {
+            groupBoxMail.Enabled = checkBoxUseMAIL.Checked;
         }
     }
 }
