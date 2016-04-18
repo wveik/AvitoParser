@@ -41,15 +41,16 @@
             this.timerMain = new System.Windows.Forms.Timer(this.components);
             this.groupBoxMain = new System.Windows.Forms.GroupBox();
             this.groupBoxMail = new System.Windows.Forms.GroupBox();
+            this.txtPassword = new System.Windows.Forms.TextBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtTo = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.txtMailPrice = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.txtFrom = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.checkBoxUseMAIL = new System.Windows.Forms.CheckBox();
-            this.txtTo = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.txtPassword = new System.Windows.Forms.TextBox();
-            this.label7 = new System.Windows.Forms.Label();
+            this.toolTipContains = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridResult)).BeginInit();
             this.groupBoxMain.SuspendLayout();
             this.groupBoxMail.SuspendLayout();
@@ -198,6 +199,38 @@
             this.groupBoxMail.TabStop = false;
             this.groupBoxMail.Text = "посылать на MAIL";
             // 
+            // txtPassword
+            // 
+            this.txtPassword.Location = new System.Drawing.Point(77, 67);
+            this.txtPassword.Name = "txtPassword";
+            this.txtPassword.Size = new System.Drawing.Size(133, 20);
+            this.txtPassword.TabIndex = 7;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(7, 70);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(53, 13);
+            this.label7.TabIndex = 17;
+            this.label7.Text = "Password";
+            // 
+            // txtTo
+            // 
+            this.txtTo.Location = new System.Drawing.Point(58, 43);
+            this.txtTo.Name = "txtTo";
+            this.txtTo.Size = new System.Drawing.Size(152, 20);
+            this.txtTo.TabIndex = 6;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(7, 46);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(20, 13);
+            this.label5.TabIndex = 15;
+            this.label5.Text = "To";
+            // 
             // txtMailPrice
             // 
             this.txtMailPrice.Location = new System.Drawing.Point(77, 92);
@@ -242,38 +275,6 @@
             this.checkBoxUseMAIL.UseVisualStyleBackColor = true;
             this.checkBoxUseMAIL.CheckedChanged += new System.EventHandler(this.checkBoxUseMAIL_CheckedChanged);
             // 
-            // txtTo
-            // 
-            this.txtTo.Location = new System.Drawing.Point(58, 43);
-            this.txtTo.Name = "txtTo";
-            this.txtTo.Size = new System.Drawing.Size(152, 20);
-            this.txtTo.TabIndex = 6;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(7, 46);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(20, 13);
-            this.label5.TabIndex = 15;
-            this.label5.Text = "To";
-            // 
-            // txtPassword
-            // 
-            this.txtPassword.Location = new System.Drawing.Point(77, 67);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(133, 20);
-            this.txtPassword.TabIndex = 7;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(7, 70);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(53, 13);
-            this.label7.TabIndex = 17;
-            this.label7.Text = "Password";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -284,6 +285,7 @@
             this.Controls.Add(this.groupBoxMain);
             this.Controls.Add(this.dataGridResult);
             this.Controls.Add(this.btnStart);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Парсер";
@@ -325,6 +327,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ToolTip toolTipContains;
     }
 }
 

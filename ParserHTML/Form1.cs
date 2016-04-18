@@ -21,6 +21,8 @@ namespace ParserHTML {
             this.notifyIcon1.MouseDoubleClick += new MouseEventHandler(notifyIcon1_MouseDoubleClick);
             this.Resize += new System.EventHandler(Form1_Resize);    
             this.dataGridResult.SortCompare += customSortCompare;
+
+            toolTipContains.SetToolTip(txtContains, "Если ищешь несколько посиций разделитель '|'");
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e) {
@@ -94,15 +96,15 @@ namespace ParserHTML {
         }
 
         private void InnerGetData() {
-            if (String.IsNullOrEmpty(txtURL.Text)) return;
-            if (String.IsNullOrEmpty(txtContains.Text)) return;
-            if (String.IsNullOrEmpty(txtPrice.Text)) return;
+            if (String.IsNullOrWhiteSpace(txtURL.Text)) return;
+            if (String.IsNullOrWhiteSpace(txtContains.Text)) return;
+            if (String.IsNullOrWhiteSpace(txtPrice.Text)) return;
 
             List<List<string>> result = new List<List<string>>();
 
             int key = 0;
             foreach (DataGridViewRow row_data_view in dataGridResult.Rows) {
-                if (row_data_view.Cells["Key"].Value != null && !string.IsNullOrEmpty(row_data_view.Cells["Key"].Value.ToString())) {
+                if (row_data_view.Cells["Key"].Value != null && !string.IsNullOrWhiteSpace(row_data_view.Cells["Key"].Value.ToString())) {
                     int max = int.Parse(row_data_view.Cells["Key"].Value.ToString());
                     if (key < max) key = max;
                 }
@@ -125,45 +127,48 @@ namespace ParserHTML {
 
                 var list_a = GetListElementsByClass(inner_doc.All, "item-description-title-link");
 
-                if (list_a.Count > 0 && list_a[0].InnerText.ToLower().Contains(txtContains.Text.ToLower())) {
-                    var price_list = GetListElementsByClass(inner_doc.All, "about");
-                    if (price_list.Count > 0 && !string.IsNullOrEmpty(price_list[0].InnerText)) {
-                        double price_page = double.Parse(price_list[0].InnerText.Replace("руб.", "").Replace(" ", ""));
+                foreach (string txt in txtContains.Text.Split('|')) {
+                    if (list_a.Count > 0 && list_a[0].InnerText.ToLower().Contains(txt.ToLower())) {
+                        var price_list = GetListElementsByClass(inner_doc.All, "about");
+                        if (price_list.Count > 0 && !string.IsNullOrWhiteSpace(price_list[0].InnerText)) {
+                            double price_page = double.Parse(price_list[0].InnerText.Replace("руб.", "").Replace(" ", ""));
 
-                        if (price_page <= disered_price) {
-                            string before = "https://www.avito.ru";
-                            string[] row = {
+                            if (price_page <= disered_price) {
+                                string before = "https://www.avito.ru";
+                                string[] row = {
                                 list_a[0].InnerText.ToString(),
                                 price_list[0].InnerText,
                                 before + list_a[0].GetAttribute("href").ToString().Replace("about:", ""),
                                 ""
                             };
 
-                            bool flag = true;
+                                bool flag = true;
 
-                            foreach (DataGridViewRow row_data_view in dataGridResult.Rows) {
-                                if (row_data_view.Cells[0].Value != null &&
-                                    row_data_view.Cells[1].Value != null &&
-                                    row_data_view.Cells[2].Value != null) {
+                                foreach (DataGridViewRow row_data_view in dataGridResult.Rows) {
+                                    if (row_data_view.Cells[0].Value != null &&
+                                        row_data_view.Cells[1].Value != null &&
+                                        row_data_view.Cells[2].Value != null) {
 
-                                    if (row_data_view.Cells[0].Value.ToString() == row[0] &&
-                                        row_data_view.Cells[1].Value.ToString() == row[1] &&
-                                        row_data_view.Cells[2].Value.ToString() == row[2]) {
+                                        if (row_data_view.Cells[0].Value.ToString() == row[0] &&
+                                            row_data_view.Cells[1].Value.ToString() == row[1] &&
+                                            row_data_view.Cells[2].Value.ToString() == row[2]) {
 
-                                        flag = false;
-                                        break;
+                                            flag = false;
+                                            break;
+                                        }
                                     }
                                 }
-                            }
-                            if (flag) {
-                                key++;
-                                row[3] = key.ToString();
-                                dataGridResult.Rows.Add(row);
-                                result.Add(row.ToList());
+                                if (flag) {
+                                    key++;
+                                    row[3] = key.ToString();
+                                    dataGridResult.Rows.Add(row);
+                                    result.Add(row.ToList());
+                                }
                             }
                         }
                     }
                 }
+                
                 dataGridResult.Sort(dataGridResult.Columns["Key"], ListSortDirection.Descending);
             }
 
@@ -183,10 +188,10 @@ namespace ParserHTML {
         private void SendToMail(List<List<string>> result) {
             if (!checkBoxUseMAIL.Checked) return;
             if (result.Count == 0) return;
-            if (String.IsNullOrEmpty(txtFrom.Text)) return;
-            if (String.IsNullOrEmpty(txtTo.Text)) return;
-            if (String.IsNullOrEmpty(txtPassword.Text)) return;
-            if (String.IsNullOrEmpty(txtMailPrice.Text)) return;
+            if (String.IsNullOrWhiteSpace(txtFrom.Text)) return;
+            if (String.IsNullOrWhiteSpace(txtTo.Text)) return;
+            if (String.IsNullOrWhiteSpace(txtPassword.Text)) return;
+            if (String.IsNullOrWhiteSpace(txtMailPrice.Text)) return;
 
             var min = result.Select(x => double.Parse(x[1].Replace(" руб. ", ""))).ToList<double>().Min();
             double checkDigit = double.Parse(txtMailPrice.Text);
@@ -198,7 +203,7 @@ namespace ParserHTML {
                 min = double.Parse(row[1].Replace(" руб. ", ""));
                 if (checkDigit < min) continue;
 
-                builder.Append(row[1] + " <br /> " + row[0] + " <br /> " + row[2]);
+                builder.Append(row[1] + " : " + row[0] + " : " + row[2]);
                 builder.Append(Environment.NewLine);
             }
 
