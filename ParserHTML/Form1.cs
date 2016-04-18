@@ -281,5 +281,10 @@ namespace ParserHTML {
         private void checkBoxUseMAIL_CheckedChanged(object sender, EventArgs e) {
             groupBoxMail.Enabled = checkBoxUseMAIL.Checked;
         }
+
+        private void label3_DoubleClick(object sender, EventArgs e) {
+            if (string.IsNullOrEmpty(txtURL.Text)) return;
+            Process.Start(txtURL.Text);
+        }
     }
 }
