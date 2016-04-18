@@ -264,7 +264,8 @@ namespace ParserHTML {
             if (WindowState == FormWindowState.Minimized) {
                 Hide();
                 notifyIcon1.Visible = true;
-                notifyIcon1.Text = "Ищем: " + txtContains.Text;
+                var text = "Ищем: " + txtContains.Text.Substring(40);
+                notifyIcon1.Text = "Ищем: " + text;
             }
         }
 
