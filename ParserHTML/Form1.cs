@@ -113,7 +113,20 @@ namespace ParserHTML {
             string url = txtURL.Text;
             double disered_price = double.Parse(txtPrice.Text);
 
-            string data = GetHTML(url);
+            string data = string.Empty;
+
+            try {
+                data = GetHTML(url);
+            } catch (Exception ex) {
+                notifyIcon1.Visible = true;
+                notifyIcon1.ShowBalloonTip(
+                    5000,
+                    "Ошибка",
+                    ex.Message
+                    + (ex.InnerException != null ? (Environment.NewLine + ex.InnerException.Message) : ""),
+                    ToolTipIcon.Error);
+                return;
+            }
 
             var doc = GetHtmlDocument(data);
             if (null == doc) return;
@@ -163,6 +176,7 @@ namespace ParserHTML {
                                     row[3] = key.ToString();
                                     dataGridResult.Rows.Add(row);
                                     result.Add(row.ToList());
+                                    break;
                                 }
                             }
                         }
@@ -228,7 +242,7 @@ namespace ParserHTML {
             }) {
                 try {
                     smtp.Send(message);
-                } catch (Exception ex) {
+                } catch {
                     //Nothing
                 }
             }
@@ -264,7 +278,10 @@ namespace ParserHTML {
             if (WindowState == FormWindowState.Minimized) {
                 Hide();
                 notifyIcon1.Visible = true;
-                var text = "Ищем: " + txtContains.Text.Substring(40);
+                notifyIcon1.Text = string.Empty;
+                string text = string.Empty;
+                if (txtContains.Text.Length > 10)
+                    text = txtContains.Text.Substring(0, 10) + "...";
                 notifyIcon1.Text = "Ищем: " + text;
             }
         }
