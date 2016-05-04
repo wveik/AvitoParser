@@ -282,6 +282,8 @@ namespace ParserHTML {
                 string text = string.Empty;
                 if (txtContains.Text.Length > 10)
                     text = txtContains.Text.Substring(0, 10) + "...";
+                else
+                    text = txtContains.Text;
                 notifyIcon1.Text = "Ищем: " + text;
             }
         }
